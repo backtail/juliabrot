@@ -159,18 +159,6 @@ void naive_mandelbrot(inout float iterations, inout vec2 z, inout vec2 c) {
     }
 }
 
-void optimized_mandelbrot(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
-        vec2 z2 = vec2(0.0, 0.0);
-        z2 = z.xy * z.xy;
-        z.y = sin((z.x + z.x) * z.y) + tan(c.y);
-        z.x = (z2.x - z2.y) + log(sin((1.618*(c.x * z.y)/128.0)));
-        if(z2.x + z2.y > 50.0) {
-            break;
-        }
-    }
-}
-
 // cool points
 // re: 0.0062482357, im: 0.559965
 void mobius_squared(inout float iterations, inout vec2 z, inout vec2 c) {
@@ -211,6 +199,18 @@ void mobius_z_cubed(inout float iterations, inout vec2 z, inout vec2 c) {
     }
 }
 
+void weird_new(inout float iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+        vec2 z2 = vec2(0.0, 0.0);
+        z2 = z.xy * z.xy;
+        z.y = sin((z.x + z.x) * z.y) + tan(c.y);
+        z.x = (z2.x - z2.y) + log(sin((1.618*(c.x * z.y)/128.0)));
+        if(z2.x + z2.y > 50.0) {
+            break;
+        }
+    }
+}
+
 //-----------------------------------
 // Main Loop
 //-----------------------------------
@@ -234,7 +234,7 @@ void main() {
 
     switch(fractal_algorithm) {
         case 0:
-            optimized_mandelbrot(iterations, z, c);
+            naive_mandelbrot(iterations, z, c);
             break;
         case 1:
             mobius_squared(iterations, z, c);
