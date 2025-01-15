@@ -26,6 +26,10 @@ uniform int fractal_algorithm;
 // main color output
 out vec4 color;
 
+// RADII
+#define MOEBIUS_RANGE 50.0
+#define MANDELBROT_RANGE 4.0
+
 //-----------------------------------
 // Complex numbers utility
 //-----------------------------------
@@ -138,65 +142,75 @@ void shady_patterns(int iterations, vec2 z) {
 // Fractal algorithms
 //-----------------------------------
 
-void naive_mandelbrot(inout int iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0; iterations < max_iterations; iterations++) {
+int naive_mandelbrot(inout vec2 z, inout vec2 c) {
+    for(int iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mul(z, z) + c;
-        if(length(z) > 2.0) {
-            break;
+        if((z.x * z.x + z.y * z.y) > MANDELBROT_RANGE) {
+            return iterations;
         }
     }
+
+    return max_iterations;
 }
 
 // cool points
 // re: 0.0062482357, im: 0.559965
-void mobius_squared(inout int iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0; iterations < max_iterations; iterations++) {
+int mobius_squared(inout vec2 z, inout vec2 c) {
+    for(int iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(z, z) + c);
-        if(length(z) > 4.0) {
-            break;
+        if((z.x * z.x + z.y * z.y) > MOEBIUS_RANGE) {
+            return iterations;
         }
     }
+
+    return max_iterations;
 }
 
 // cool points
 // re: 0.11892238, im: 0.4829234
-void mobius_cubed(inout int iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0; iterations < max_iterations; iterations++) {
+int mobius_cubed(inout vec2 z, inout vec2 c) {
+    for(int iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(cx_mul(z, z), z) + c);
-        if(length(z) > 2.0) {
-            break;
+        if((z.x * z.x + z.y * z.y) > MOEBIUS_RANGE) {
+            return iterations;
         }
     }
+
+    return max_iterations;
 }
 
-void mobius_z_squared(inout int iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0; iterations < max_iterations; iterations++) {
+int mobius_z_squared(inout vec2 z, inout vec2 c) {
+    for(int iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(z, z)) + c;
-        if(length(z) > 2.0) {
-            break;
+        if((z.x * z.x + z.y * z.y) > MOEBIUS_RANGE) {
+            return iterations;
         }
     }
+
+    return max_iterations;
 }
 
-void mobius_z_cubed(inout int iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0; iterations < max_iterations; iterations++) {
+int mobius_z_cubed(inout vec2 z, inout vec2 c) {
+    for(int iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(cx_mul(z, z), z)) + c;
-        if(length(z) > 2.0) {
-            break;
+        if((z.x * z.x + z.y * z.y) > MOEBIUS_RANGE) {
+            return iterations;
         }
     }
+
+    return max_iterations;
 }
 
-void weird_new(inout int iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0; iterations < max_iterations; iterations++) {
-        vec2 z2 = vec2(0.0, 0.0);
-        z2 = z.xy * z.xy;
-        z.y = sin((z.x + z.x) * z.y) + tan(c.y);
-        z.x = (z2.x - z2.y) + log(sin((1.618*(c.x * z.y)/128.0)));
-        if(z2.x + z2.y > 50.0) {
-            break;
+int mandelbrot_log(inout vec2 z, inout vec2 c) {
+    for(int iterations = 0; iterations < max_iterations; iterations++) {
+        z = cx_log(cx_mul(z, z)) + c;
+
+        if((z.x * z.x + z.y * z.y) > MANDELBROT_RANGE*4.0) {
+            return iterations;
         }
     }
+
+    return max_iterations;
 }
 
 //-----------------------------------
@@ -204,9 +218,6 @@ void weird_new(inout int iterations, inout vec2 z, inout vec2 c) {
 //-----------------------------------
 
 void main() {
-
-    int iterations;
-
     switch(set) {
         case 0:
         // Mandelbrot Set
@@ -220,21 +231,26 @@ void main() {
             break;
     }
 
+    int iterations = 0;
+
     switch(fractal_algorithm) {
         case 0:
-            naive_mandelbrot(iterations, z, c);
+            iterations = naive_mandelbrot(z, c);
             break;
         case 1:
-            mobius_squared(iterations, z, c);
+            iterations = mobius_squared(z, c);
             break;
         case 2:
-            mobius_cubed(iterations, z, c);
+            iterations = mobius_cubed(z, c);
             break;
         case 3:
-            mobius_z_squared(iterations, z, c);
+            iterations = mobius_z_squared(z, c);
             break;
         case 4:
-            mobius_z_cubed(iterations, z, c);
+            iterations = mobius_z_cubed(z, c);
+            break;
+        case 5:
+            iterations = mandelbrot_log(z, c);
             break;
     }
 

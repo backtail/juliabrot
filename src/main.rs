@@ -64,7 +64,7 @@ fn main() {
     let mut zoom: f32 = 4.0;
     let mut c_x: f32 = 0.0;
     let mut c_y: f32 = 0.0;
-    let mut max_iterations: i32 = 70;
+    let mut max_iterations: i32 = 50;
 
     // keyboard input variables
     let mut dragging = false;
@@ -121,7 +121,8 @@ fn main() {
                     1 => fractal_algorithm = 2,
                     2 => fractal_algorithm = 3,
                     3 => fractal_algorithm = 4,
-                    4 => fractal_algorithm = 0,
+                    4 => fractal_algorithm = 5,
+                    5 => fractal_algorithm = 0,
                     _ => return,
                 },
 
