@@ -116,42 +116,30 @@ float log10(float num) {
 // Coloring algorithms
 //-----------------------------------
 
-void linear_coloring(float iterations) {
-    if(iterations == max_iterations) {
-        color = vec4(0.0, 0.0, 0.0, 1.0);
-    } else {
-        float val = iterations / float(max_iterations);
-        color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
-    }
+void linear_coloring(int iterations) {
+    float val = iterations / float(max_iterations);
+    color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
 }
 
-void smooth_coloring(float iterations, vec2 z) {
-    if(iterations == max_iterations) {
-        color = vec4(0.0, 0.0, 0.0, 1.0);
-    } else {
-        float val = iterations + 1.0 - log10(log10(length(z))) / log10(2.0);
-        val = val * (1.0 / float(max_iterations));
-        color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
-    }
+void smooth_coloring(int iterations, vec2 z) {
+    float val = iterations + 1.0 - log10(log10(length(z))) / log10(2.0);
+    val = val * (1.0 / float(max_iterations));
+    color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
 }
 
-void shady_patterns(float iterations, vec2 z) {
-    if(iterations == max_iterations) {
-        color = vec4(0.0, 0.0, 0.0, 1.0);
-    } else {
-        float min_step = iterations / float(max_iterations);
-        float val = min_step + 1.0 - log(log(length(z))) / log(2.0);
-        val = color_offset + val * color_range;
-        color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
-    }
+void shady_patterns(int iterations, vec2 z) {
+    float min_step = iterations / float(max_iterations);
+    float val = min_step + 1.0 - log(log(length(z))) / log(2.0);
+    val = color_offset + val * color_range;
+    color = vec4(hsv2rgb(vec3(val, 1.0, 1.0)), 1.0);
 }
 
 //-----------------------------------
 // Fractal algorithms
 //-----------------------------------
 
-void naive_mandelbrot(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+void naive_mandelbrot(inout int iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mul(z, z) + c;
         if(length(z) > 2.0) {
             break;
@@ -161,8 +149,8 @@ void naive_mandelbrot(inout float iterations, inout vec2 z, inout vec2 c) {
 
 // cool points
 // re: 0.0062482357, im: 0.559965
-void mobius_squared(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+void mobius_squared(inout int iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(z, z) + c);
         if(length(z) > 4.0) {
             break;
@@ -172,8 +160,8 @@ void mobius_squared(inout float iterations, inout vec2 z, inout vec2 c) {
 
 // cool points
 // re: 0.11892238, im: 0.4829234
-void mobius_cubed(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+void mobius_cubed(inout int iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(cx_mul(z, z), z) + c);
         if(length(z) > 2.0) {
             break;
@@ -181,8 +169,8 @@ void mobius_cubed(inout float iterations, inout vec2 z, inout vec2 c) {
     }
 }
 
-void mobius_z_squared(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+void mobius_z_squared(inout int iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(z, z)) + c;
         if(length(z) > 2.0) {
             break;
@@ -190,8 +178,8 @@ void mobius_z_squared(inout float iterations, inout vec2 z, inout vec2 c) {
     }
 }
 
-void mobius_z_cubed(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+void mobius_z_cubed(inout int iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0; iterations < max_iterations; iterations++) {
         z = cx_mobius(cx_mul(cx_mul(z, z), z)) + c;
         if(length(z) > 2.0) {
             break;
@@ -199,8 +187,8 @@ void mobius_z_cubed(inout float iterations, inout vec2 z, inout vec2 c) {
     }
 }
 
-void weird_new(inout float iterations, inout vec2 z, inout vec2 c) {
-    for(iterations = 0.0; iterations < max_iterations; iterations++) {
+void weird_new(inout int iterations, inout vec2 z, inout vec2 c) {
+    for(iterations = 0; iterations < max_iterations; iterations++) {
         vec2 z2 = vec2(0.0, 0.0);
         z2 = z.xy * z.xy;
         z.y = sin((z.x + z.x) * z.y) + tan(c.y);
@@ -217,7 +205,7 @@ void weird_new(inout float iterations, inout vec2 z, inout vec2 c) {
 
 void main() {
 
-    float iterations;
+    int iterations;
 
     switch(set) {
         case 0:
@@ -250,17 +238,19 @@ void main() {
             break;
     }
 
-    //mobius_squared(iterations, z, c);
-
-    switch(color_algorithm) {
-        case 0:
-            linear_coloring(iterations);
-            break;
-        case 1:
-            smooth_coloring(iterations, z);
-            break;
-        case 2:
-            shady_patterns(iterations, z);
-            break;
+    if(iterations != max_iterations) {
+        switch(color_algorithm) {
+            case 0:
+                linear_coloring(iterations);
+                break;
+            case 1:
+                smooth_coloring(iterations, z);
+                break;
+            case 2:
+                shady_patterns(iterations, z);
+                break;
+        }
+    } else {
+        color = vec4(0.0, 0.0, 0.0, 1.0); // black
     }
 }
